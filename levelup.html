@@ -1,9 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <meta charset="UTF-8">
     <title>Evolution - Solo Leveling</title>
     <style>
+     /* Responsive Container */
+.rank-up-container {
+    width: 90%;
+    max-width: 600px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Level Number Scaling */
+.level-number {
+    font-size: clamp(5rem, 25vw, 10rem); /* Scales between 5rem and 10rem based on screen width */
+    margin: 5px 0;
+    line-height: 1;
+}
+
+/* Glitch Title Scaling */
+.glitch-text {
+    font-size: clamp(1.8rem, 8vw, 3.5rem);
+    letter-spacing: 2px;
+}
+
+/* Mobile Button Optimization */
+button {
+    width: 100%;
+    max-width: 300px;
+    padding: 20px; /* Larger tap area for thumbs */
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+/* Extra tweak for very small height phones (landscape) */
+@media (max-height: 500px) {
+    .level-number { font-size: 4rem; }
+    .glitch-text { font-size: 1.5rem; }
+}
+
+
+
+
+
         :root { --system-blue: #00d4ff; --text-gold: #ffd700; --bg-dark: #0a0a0b; }
         body { background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; background-image: radial-gradient(circle, #1a1a2e 0%, #0a0a0b 100%); }
         .rank-up-container { text-align: center; animation: zoomIn 0.8s ease-out; }

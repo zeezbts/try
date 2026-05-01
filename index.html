@@ -2,9 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solo Leveling - The System</title>
     <style>
+
+/* Update the window to use percentage width */
+.system-window {
+    width: 85%;            /* Takes up 85% of screen on mobile */
+    max-width: 400px;      /* Stops it from getting too wide on PC */
+    padding: 30px 15px;    /* Reduced padding for small screens */
+    box-sizing: border-box; /* Ensures padding doesn't push width over 100% */
+    
+    /* Responsive clip-path that works on any size */
+    clip-path: polygon(0 15px, 15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+}
+
+/* Update inputs and buttons to fill their container */
+input, button {
+    width: 90%;            /* Makes them fit inside the window */
+    max-width: 300px;
+    box-sizing: border-box;
+    font-size: 16px;       /* Prevents iOS from auto-zooming on focus */
+}
+
+
+
+
+
+
+@media (max-width: 400px) {
+    h1 { font-size: 1.5rem; }
+    #display-level { font-size: 2.5rem; }
+    .system-window { padding: 20px 10px; }
+}
+
         :root { --system-blue: #00d4ff; --bg-dark: #0a0a0b; --text-gold: #ffd700; }
         body { background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-image: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0b 100%); overflow: hidden; }
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
@@ -16,9 +49,277 @@
         #gate-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; display: none; z-index: 10000; flex-direction: column; justify-content: center; align-items: center; }
         .portal { width: 60px; height: 60px; border: 4px solid var(--system-blue); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+
+
+
+
+
+
+
+
+
+    :root { 
+        --system-blue: #00d4ff; 
+        --bg-dark: #0a0a0b; 
+        --text-gold: #ffd700;
+        --glow: 0 0 15px rgba(0, 212, 255, 0.7);
+    }
+
+    body { 
+        background-color: var(--bg-dark); 
+        color: white; 
+        font-family: 'Segoe UI', sans-serif; 
+        margin: 0; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        min-height: 100vh; 
+        background-image: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0b 100%);
+        overflow: hidden; 
+    }
+
+    /* Scanline effect like a CRT monitor */
+    body::before {
+        content: " ";
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                    linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        background-size: 100% 4px, 3px 100%;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    /* Glitch Animation */
+    @keyframes glitch {
+        0% { text-shadow: 2px 0 0 red, -2px 0 0 blue; }
+        25% { text-shadow: -2px 0 0 red, 2px 0 0 blue; }
+        50% { text-shadow: 2px 2px 0 red, -2px -2px 0 blue; }
+        100% { text-shadow: 0 0 0 red, 0 0 0 blue; }
+    }
+
+    .system-window { 
+        position: relative; 
+        border: 2px solid var(--system-blue); 
+        padding: 50px; 
+        background: rgba(10, 10, 15, 0.9); 
+        clip-path: polygon(0 15px, 15px 0, 95% 0, 100% 15px, 100% 95%, 95% 100%, 15% 100%, 0 85%);
+        text-align: center; 
+        box-shadow: var(--glow);
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    h1 { 
+        animation: glitch 1s infinite alternate-reverse; 
+        letter-spacing: 4px;
+        text-transform: uppercase;
+    }
+
+    input { 
+        background: rgba(0, 212, 255, 0.05); 
+        border: 1px solid var(--system-blue); 
+        color: white; 
+        padding: 12px; 
+        margin: 10px; 
+        width: 250px; 
+        text-align: center; 
+        outline: none;
+        transition: 0.3s;
+    }
+
+    input:focus { background: rgba(0, 212, 255, 0.2); box-shadow: var(--glow); }
+
+    button { 
+        background: rgba(0, 212, 255, 0.1); 
+        border: 1px solid var(--system-blue); 
+        color: var(--system-blue); 
+        padding: 15px 40px; 
+        cursor: pointer; 
+        text-transform: uppercase; 
+        font-weight: bold; 
+        letter-spacing: 2px; 
+        transition: 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    button:hover { 
+        background: var(--system-blue); 
+        color: black; 
+        box-shadow: 0 0 30px var(--system-blue); 
+    }
+
+    /* Floating "Syncing" Animation for the Portal */
+    .portal { 
+        width: 100px; height: 100px; 
+        border: 4px solid var(--system-blue); 
+        border-top-color: transparent; 
+        border-radius: 50%; 
+        animation: spin 0.8s linear infinite, portalPulse 1.5s infinite alternate; 
+        box-shadow: 0 0 50px var(--system-blue);
+    }
+
+    @keyframes portalPulse {
+        from { transform: scale(1); opacity: 0.8; }
+        to { transform: scale(1.2); opacity: 1; }
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+
+
+
+
+    :root { 
+    --system-blue: #00d4ff; 
+    --bg-dark: #0a0a0b; 
+}
+
+body { 
+    margin: 0; 
+    padding: 0;
+    min-height: 100vh; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    font-family: 'Segoe UI', sans-serif; 
+    background-color: var(--bg-dark);
+    overflow: hidden; 
+}
+
+/* THE ANIMATED BACKGROUND */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Replace with your preferred image URL */
+    background-image: linear-gradient(rgba(10, 10, 15, 0.7), rgba(10, 10, 15, 0.7)), 
+                      url('https://alphacoders.com');
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+    /* This creates the "breathing" effect */
+    animation: bgPulse 20s infinite alternate ease-in-out;
+}
+
+/* THE SCANLINE OVERLAY (For the digital monitor look) */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.1),
+        rgba(0, 0, 0, 0.1) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Keyframes for the background zoom animation */
+@keyframes bgPulse {
+    0% { transform: scale(1.0); }
+    100% { transform: scale(1.1); }
+}
+
+.system-window {
+    z-index: 5; /* Ensures the UI stays above the background */
+    background: rgba(10, 10, 15, 0.85); /* Semi-transparent to see the image */
+    backdrop-filter: blur(5px); /* Blurs the background behind the window */
+    border: 2px solid var(--system-blue);
+    /* ... existing window styles ... */
+}
+
+
+
+
+
+    :root { 
+        --system-blue: #00d4ff; 
+        --bg-dark: #0a0a0b; 
+        --text-gold: #ffd700;
+    }
+
+    body { 
+        margin: 0; 
+        padding: 0;
+        height: 100vh; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        font-family: 'Segoe UI', sans-serif; 
+        background-color: var(--bg-dark);
+        overflow: hidden; 
+    }
+
+    /* ANIMATED BACKGROUND IMAGE */
+    .bg-animation {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* Dark blue/black dungeon aesthetic */
+        background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(10, 20, 40, 0.6)), 
+                          url('https://alphacoders.com');
+        background-size: cover;
+        background-position: center;
+        z-index: -2;
+        animation: subtleZoom 20s infinite alternate ease-in-out;
+    }
+
+    /* MANA PARTICLES (FLOATING DUST) */
+    .particles {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: url('https://transparenttextures.com');
+        opacity: 0.3;
+        z-index: -1;
+        animation: floatParticles 60s linear infinite;
+    }
+
+    /* THE ANIMATIONS */
+    @keyframes subtleZoom {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.15); }
+    }
+
+    @keyframes floatParticles {
+        from { background-position: 0 0; }
+        to { background-position: 500px 1000px; }
+    }
+
+    /* SYSTEM WINDOW STYLING */
+    .system-window { 
+        position: relative; 
+        border: 2px solid var(--system-blue); 
+        padding: 40px; 
+        background: rgba(10, 10, 15, 0.85); /* See-through tech look */
+        backdrop-filter: blur(8px); /* Frosted glass effect */
+        clip-path: polygon(0 20px, 20px 0, 95% 0, 100% 20px, 100% 95%, 95% 100%, 20% 100%, 0 80%);
+        text-align: center; 
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+        z-index: 10;
+        animation: windowSlideIn 0.8s ease-out;
+    }
+
+    @keyframes windowSlideIn {
+        from { opacity: 0; transform: translateY(30px) scale(0.9); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    
     </style>
 </head>
 <body>
+    <div class="bg-animation"></div>
+<div class="particles"></div>
+
     <div id="login-screen">
         <h1 style="color: var(--system-blue); letter-spacing: 5px; margin-bottom: 20px;">SYSTEM ACCESS</h1>
         <input type="text" id="u-name" placeholder="HUNTER NAME">
@@ -73,29 +374,21 @@
             document.getElementById('display-level').innerText = currentLevel;
         }
 
-        function enterGate() {
-            const name = localStorage.getItem("soloUser");
-            if (!name) { alert("Session expired."); location.reload(); return; }
+        /* --- Inside index.html --- */
 
-            document.getElementById('gate-overlay').style.display = 'flex';
-            
-            setTimeout(() => {
-                const levelKey = "userLevel_" + name.toLowerCase();
-                const lvl = parseInt(localStorage.getItem(levelKey)) || 1;
-                
-                // If you have level2.html, level3.html etc, use this logic:
-                if (lvl === 1) {
-                    window.location.href = "workout.html";
-                } else {
-                    // This directs to level2.html, level3.html etc. 
-                    // If file doesn't exist, it goes to workout.html as fallback.
-                    window.location.href = "level" + lvl + ".html";
-                    
-                    // FALLBACK: If you don't have multiple pages yet, just use:
-                    // window.location.href = "workout.html";
-                }
-            }, 2000);
-        }
+function enterGate() {
+    const name = localStorage.getItem("soloUser");
+    if (!name) { alert("Session expired."); location.reload(); return; }
+
+    document.getElementById('gate-overlay').style.display = 'flex';
+    
+    setTimeout(() => {
+        // CHANGE THIS PART:
+        // Instead of checking for level2.html, send everyone to workout.html
+        window.location.href = "workout.html"; 
+    }, 2000);
+}
+
 
         function logout() { 
             if(confirm("Are you sure you want to exit the System?")) { 
