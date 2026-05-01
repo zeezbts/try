@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Evolution - Solo Leveling</title>
+    <style>
+        :root { --system-blue: #00d4ff; --text-gold: #ffd700; --bg-dark: #0a0a0b; }
+        body { background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; background-image: radial-gradient(circle, #1a1a2e 0%, #0a0a0b 100%); }
+        .rank-up-container { text-align: center; animation: zoomIn 0.8s ease-out; }
+        .glitch-text { font-size: 3rem; color: var(--system-blue); text-shadow: 0 0 20px var(--system-blue); letter-spacing: 5px; }
+        .level-number { font-size: 8rem; color: var(--text-gold); text-shadow: 0 0 50px var(--text-gold); margin: 10px 0; }
+        #portal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; display: none; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
+        .portal-spin { width: 70px; height: 70px; border: 4px solid var(--system-blue); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        button { background: transparent; border: 1px solid var(--system-blue); color: var(--system-blue); padding: 15px 40px; cursor: pointer; text-transform: uppercase; margin-top: 40px; }
+    </style>
+</head>
+<body>
+    <div class="rank-up-container">
+        <h1 class="glitch-text">LEVEL INCREASED</h1>
+        <div class="level-number" id="display-new-level">1</div>
+        <button onclick="next()">Enter Next Dungeon</button>
+    </div>
+    <div id="portal-overlay"><div class="portal-spin"></div><p style="color: var(--system-blue); margin-top: 20px;">LOADING NEXT FLOOR...</p></div>
+    <script>
+        const name = localStorage.getItem("soloUser").toLowerCase();
+        const level = localStorage.getItem("userLevel_" + name) || 1;
+        document.getElementById('display-new-level').innerText = level;
+        
+
+        function next() {
+    document.getElementById('portal-overlay').style.display = 'flex';
+    setTimeout(() => { 
+        // Always go to workout.html because it now handles ALL levels
+        window.location.href = "workout.html"; 
+    }, 1500);
+}
+
+    </script>
+</body>
+</html>

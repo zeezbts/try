@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solo Leveling - The System</title>
+    <style>
+        :root { --system-blue: #00d4ff; --bg-dark: #0a0a0b; --text-gold: #ffd700; }
+        body { background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-image: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0b 100%); overflow: hidden; }
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .system-window { position: relative; border: 2px solid var(--system-blue); padding: 50px; background: rgba(20, 20, 25, 0.95); clip-path: polygon(0 0, 95% 0, 100% 5%, 100% 100%, 5% 100%, 0 95%); text-align: center; box-shadow: 0 0 30px rgba(0, 212, 255, 0.3); display: none; }
+        input { background: rgba(0, 212, 255, 0.1); border: 1px solid var(--system-blue); color: white; padding: 12px; margin: 10px; width: 250px; text-align: center; outline: none; }
+        button { background: transparent; border: 1px solid var(--system-blue); color: var(--system-blue); padding: 15px 40px; cursor: pointer; text-transform: uppercase; font-weight: bold; letter-spacing: 2px; transition: 0.3s; }
+        button:hover { background: var(--system-blue); color: black; box-shadow: 0 0 20px var(--system-blue); }
+        .logout-link { position: absolute; top: 15px; right: 20px; color: #ff4d4d; cursor: pointer; font-size: 0.7rem; background: none; border: none; text-decoration: underline; }
+        #gate-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; display: none; z-index: 10000; flex-direction: column; justify-content: center; align-items: center; }
+        .portal { width: 60px; height: 60px; border: 4px solid var(--system-blue); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div id="login-screen">
+        <h1 style="color: var(--system-blue); letter-spacing: 5px; margin-bottom: 20px;">SYSTEM ACCESS</h1>
+        <input type="text" id="u-name" placeholder="HUNTER NAME">
+        <input type="password" id="u-pass" placeholder="PASSWORD">
+        <button onclick="verifyUser()">Verify Identity</button>
+    </div>
+
+    <div id="main-ui" class="system-window">
+        <button class="logout-link" onclick="logout()">[ Log Out ]</button>
+        <p style="color: #888; font-size: 0.8rem; margin: 0;">CURRENT STATUS</p>
+        <h1 style="color: var(--text-gold); margin: 10px 0; font-size: 3rem;">LEVEL: <span id="display-level">1</span></h1>
+        <h2 id="user-display" style="color: var(--system-blue); margin-bottom: 30px;">HUNTER</h2>
+        <button onclick="enterGate()">Enter the Gate</button>
+    </div>
+
+    <div id="gate-overlay"><div class="portal"></div><p style="color: var(--system-blue); margin-top: 20px;">SYNCING...</p></div>
+
+    <script>
+        window.onload = function() {
+            const savedUser = localStorage.getItem("soloUser");
+            if (savedUser) { showMainUI(savedUser); }
+        };
+
+        function verifyUser() {
+            const name = document.getElementById('u-name').value.trim().toLowerCase();
+            const pass = document.getElementById('u-pass').value.trim();
+            if (name !== "" && pass !== "") {
+                const passKey = "userPass_" + name;
+                const levelKey = "userLevel_" + name;
+
+                const storedPass = localStorage.getItem(passKey);
+                if (storedPass === null) {
+                    // New Registration
+                    localStorage.setItem(passKey, pass);
+                    localStorage.setItem(levelKey, 1);
+                    localStorage.setItem("soloUser", name);
+                    showMainUI(name);
+                } else if (storedPass === pass) {
+                    // Existing User Login
+                    localStorage.setItem("soloUser", name);
+                    showMainUI(name);
+                } else {
+                    alert("ACCESS DENIED: Incorrect Secret Key.");
+                }
+            } else { alert("Credentials required."); }
+        }
+
+        function showMainUI(name) {
+            const levelKey = "userLevel_" + name.toLowerCase();
+            const currentLevel = localStorage.getItem(levelKey) || 1;
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-ui').style.display = 'block';
+            document.getElementById('user-display').innerText = name.toUpperCase();
+            document.getElementById('display-level').innerText = currentLevel;
+        }
+
+        function enterGate() {
+            document.getElementById('gate-overlay').style.display = 'flex';
+            setTimeout(() => {
+                const name = localStorage.getItem("soloUser").toLowerCase();
+                const lvl = parseInt(localStorage.getItem("userLevel_" + name)) || 1;
+                window.location.href = lvl >= 2 ? "level2.html" : "workout.html";
+            }, 2000);
+        }
+
+        function logout() { if(confirm("Log out?")) { localStorage.removeItem("soloUser"); location.reload(); } }
+    </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Solo Leveling - Floor Tracker</title>
+    <style>
+        :root { --system-blue: #00d4ff; --bg-dark: #0a0a0b; --text-gold: #ffd700; --system-green: #00ff88; }
+        body { background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; background-image: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0b 100%); }
+        
+        .stats-bar { width: 95%; max-width: 500px; display: flex; justify-content: space-around; background: rgba(0, 212, 255, 0.1); border: 1px solid var(--system-blue); padding: 10px 0; margin-bottom: 15px; font-size: 0.8rem; letter-spacing: 1px; }
+        .stat-item span { color: var(--system-blue); font-weight: bold; }
+
+        .system-window { width: 95%; max-width: 500px; background: rgba(20, 20, 25, 0.95); border: 2px solid var(--system-blue); padding: 25px; clip-path: polygon(0 0, 95% 0, 100% 5%, 100% 100%, 5% 100%, 0 95%); }
+        .header { border-bottom: 1px solid var(--system-blue); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;}
+        .quest-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px; background: rgba(255, 255, 255, 0.03); border-left: 3px solid var(--system-blue); }
+        .reps-input { width: 60px; background: rgba(0, 212, 255, 0.1); border: 1px solid var(--system-blue); color: white; padding: 6px; text-align: center; outline: none; }
+        .system-checkbox { appearance: none; width: 22px; height: 22px; border: 2px solid var(--system-blue); cursor: pointer; position: relative; background: #000; }
+        .system-checkbox:checked { background: var(--system-green); border-color: var(--system-green); }
+        .system-checkbox:checked::after { content: '✔'; position: absolute; color: black; left: 3px; top: -3px; font-size: 16px; }
+        .quest-item.completed { border-left-color: var(--system-green); background: rgba(0, 255, 136, 0.1); }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { text-align: center; border: 2px solid var(--text-gold); padding: 40px; background: #000; }
+    </style>
+</head>
+<body>
+
+    <div class="stats-bar">
+        <div class="stat-item">STR: <span id="stat-str">0</span></div>
+        <div class="stat-item">AGI: <span id="stat-agi">0</span></div>
+        <div class="stat-item">VIT: <span id="stat-vit">0</span></div>
+    </div>
+
+    <div class="system-window">
+        <div class="header">
+            <h2 id="floor-title" style="color:var(--system-blue); margin:0; font-size: 1rem;">[FLOOR ...]</h2>
+            <span id="completion-pct" style="color:var(--text-gold); font-weight: bold;">0%</span>
+        </div>
+        <div id="quest-list"></div>
+    </div>
+
+    <div id="level-modal" class="modal">
+        <div class="modal-content">
+            <h1 style="color:var(--text-gold);">LEVEL UP</h1>
+            <p>New powers have been granted.</p>
+            <button onclick="finish()" style="background:none; border:1px solid gold; color:gold; padding:10px 20px; cursor:pointer; text-transform:uppercase;">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        let doneCount = 0;
+        let currentUser = localStorage.getItem("soloUser") || "hunter";
+        let currentLevel = parseInt(localStorage.getItem("userLevel_" + currentUser)) || 1;
+
+        // 1. BASE EXERCISES
+        const exercises = [
+            { id: 'p', name: 'Push-ups', goal: 10 + Math.floor(currentLevel / 7) },
+            { id: 'r', name: 'Running (KM)', goal: 5 + Math.floor(currentLevel / 10) },
+            { id: 'sq', name: 'Squats', goal: 10 + Math.floor(currentLevel / 7) },
+            { id: 'si', name: 'Sit-ups', goal: 10 + Math.floor(currentLevel / 7) }
+        ];
+
+        // 2. SKILL POOL (Unlocks every 3 levels)
+        const skillPool = [
+            { id: 'pl', name: 'Plank (Sec)', goal: 30 + (currentLevel * 2) },
+            { id: 'lu', name: 'Lunges', goal: 10 + Math.floor(currentLevel / 5) },
+            { id: 'bu', name: 'Burpees', goal: 5 + Math.floor(currentLevel / 10) },
+            { id: 'pull', name: 'Pull-ups', goal: 3 + Math.floor(currentLevel / 12) },
+            { id: 'dip', name: 'Dips', goal: 8 + Math.floor(currentLevel / 8) },
+            { id: 'jump', name: 'Jumping Jacks', goal: 20 + currentLevel }
+        ];
+
+        function renderQuests() {
+            // Update HUD
+            document.getElementById('stat-str').innerText = 10 + Math.floor(currentLevel / 2);
+            document.getElementById('stat-agi').innerText = 10 + Math.floor(currentLevel / 3);
+            document.getElementById('stat-vit').innerText = 10 + Math.floor(currentLevel / 2);
+            document.getElementById('floor-title').innerText = `[FLOOR ${currentLevel}]`;
+
+            const listContainer = document.getElementById('quest-list');
+            
+            // CALCULATE UNLOCKS: Level 3 = 1 extra, Level 6 = 2 extra, etc.
+            const unlockCount = Math.floor(currentLevel / 3);
+            const activeQuests = [...exercises];
+            
+            for(let i = 0; i < unlockCount && i < skillPool.length; i++) {
+                activeQuests.push(skillPool[i]);
+            }
+
+            window.totalActive = activeQuests.length;
+
+            let html = "";
+            activeQuests.forEach(ex => {
+                html += `
+                    <div class="quest-item" id="row-${ex.id}">
+                        <div style="display:flex; flex-direction:column;">
+                            <span style="font-weight:bold; text-transform:uppercase; font-size:0.8rem;">${ex.name}</span>
+                            <span style="font-size:0.65rem; color:#888;">Goal: ${ex.goal}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <input type="number" class="reps-input" id="in-${ex.id}" placeholder="0">
+                            <input type="checkbox" class="system-checkbox" onclick="validate('${ex.id}', ${ex.goal}, this)">
+                        </div>
+                    </div>
+                `;
+            });
+            listContainer.innerHTML = html;
+        }
+
+        function validate(id, goal, cb) {
+            const inputVal = parseInt(document.getElementById('in-' + id).value) || 0;
+            const row = document.getElementById('row-' + id);
+            
+            if (cb.checked) {
+                if (inputVal >= goal) {
+                    row.classList.add('completed');
+                    doneCount++;
+                } else {
+                    cb.checked = false;
+                    alert(`System: Goal not met. Requirement: ${goal}`);
+                }
+            } else {
+                row.classList.remove('completed');
+                doneCount--;
+            }
+
+            const pct = Math.round((doneCount / window.totalActive) * 100);
+            document.getElementById('completion-pct').innerText = pct + "%";
+            if (pct >= 100) document.getElementById('level-modal').style.display = 'flex';
+        }
+
+        function finish() {
+            localStorage.setItem("userLevel_" + currentUser, currentLevel + 1);
+            window.location.href = "levelup.html";
+        }
+
+        renderQuests();
+    </script>
+</body>
+</html>
