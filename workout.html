@@ -2,215 +2,217 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
     <meta charset="UTF-8">
     <title>Solo Leveling - Floor Tracker</title>
     <style>
-    
-@keyframes breathe {
-    0% { 
-        transform: scale(1); 
-    }
-    100% { 
-        /* Adding translate3d(0,0,0) forces the browser to use the 
-           GPU (Hardware Acceleration), which stops the shaking. */
-        transform: scale(1.05) translate3d(0, 0, 0); 
-    }
-}
+        :root { 
+            --system-blue: #00d4ff; 
+            --bg-dark: #0a0a0b; 
+            --text-gold: #ffd700; 
+            --system-green: #00ff88;
+            --igris-red: #ff0000;
+        }
 
-/* Also add this to your .bg-layer or body::before */
-.bg-layer {
-    /* ... your other styles ... */
-    backface-visibility: hidden;
-    -webkit-font-smoothing: subpixel-antialiased;
-    will-change: transform; /* Tells the browser to prepare for animation */
-}
+        body { 
+            background-color: var(--bg-dark); 
+            color: white; 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            background-image: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0b 100%);
+            overflow: hidden;
+        } 
 
+        /* --- STATS BAR --- */
+        .stats-bar { width: 95%; max-width: 500px; display: flex; justify-content: space-around; background: rgba(0, 212, 255, 0.1); border: 1px solid var(--system-blue); padding: 10px 0; margin-bottom: 15px; font-size: 0.8rem; letter-spacing: 1px; transition: 0.5s; }
+        .stat-item span { color: var(--system-blue); font-weight: bold; transition: 0.5s; }
 
+        /* --- SYSTEM WINDOW --- */
+        .system-window { 
+            width: 95%; 
+            max-width: 500px; 
+            background: rgba(20, 20, 25, 0.95); 
+            border: 2px solid var(--system-blue); 
+            padding: 25px; 
+            clip-path: polygon(0 0, 95% 0, 100% 5%, 100% 100%, 5% 100%, 0 95%); 
+            animation: system-appear 0.5s ease-out forwards, mana-pulse 3s infinite;
+            transition: 0.5s;
+            box-sizing: border-box;
+        }
 
+        /* --- IGRIS ANIMATION (Every 3 Levels) --- */
+        .system-window.stage-igris {
+            border-color: var(--igris-red) !important;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.4), inset 0 0 20px rgba(0, 0, 0, 0.8);
+            background: rgba(15, 5, 5, 0.98) !important;
+            animation: igris-aura 2s infinite alternate !important;
+        }
+        .stage-igris #floor-title, .stage-igris .stat-item-val { 
+            color: var(--igris-red) !important; 
+            text-shadow: 0 0 10px var(--igris-red);
+        }
+        .stage-igris-bar { border-color: var(--igris-red) !important; background: rgba(255, 0, 0, 0.05) !important; }
 
-
-
-        :root { --system-blue: #00d4ff; --bg-dark: #0a0a0b; --text-gold: #ffd700; --system-green: #00ff88; }
-        body { background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; background-image: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0b 100%); }
-        
-        .stats-bar { width: 95%; max-width: 500px; display: flex; justify-content: space-around; background: rgba(0, 212, 255, 0.1); border: 1px solid var(--system-blue); padding: 10px 0; margin-bottom: 15px; font-size: 0.8rem; letter-spacing: 1px; }
-        .stat-item span { color: var(--system-blue); font-weight: bold; }
-
-        .system-window { width: 95%; max-width: 500px; background: rgba(20, 20, 25, 0.95); border: 2px solid var(--system-blue); padding: 25px; clip-path: polygon(0 0, 95% 0, 100% 5%, 100% 100%, 5% 100%, 0 95%); }
+        /* --- QUEST ITEMS --- */
         .header { border-bottom: 1px solid var(--system-blue); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;}
-        .quest-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px; background: rgba(255, 255, 255, 0.03); border-left: 3px solid var(--system-blue); }
+        .quest-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px; background: rgba(255, 255, 255, 0.03); border-left: 3px solid var(--system-blue); transition: 0.3s; }
         .reps-input { width: 60px; background: rgba(0, 212, 255, 0.1); border: 1px solid var(--system-blue); color: white; padding: 6px; text-align: center; outline: none; }
         .system-checkbox { appearance: none; width: 22px; height: 22px; border: 2px solid var(--system-blue); cursor: pointer; position: relative; background: #000; }
         .system-checkbox:checked { background: var(--system-green); border-color: var(--system-green); }
         .system-checkbox:checked::after { content: '✔'; position: absolute; color: black; left: 3px; top: -3px; font-size: 16px; }
         .quest-item.completed { border-left-color: var(--system-green); background: rgba(0, 255, 136, 0.1); }
+
+        /* --- MODALS --- */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { text-align: center; border: 2px solid var(--text-gold); padding: 40px; background: #000; }
+        .modal-content { text-align: center; border: 2px solid var(--text-gold); padding: 40px; background: #000; box-shadow: 0 0 30px var(--text-gold); }
 
-        /* Mana Pulse Animation for the Window */
-@keyframes mana-pulse {
-    0% { box-shadow: 0 0 15px rgba(0, 212, 255, 0.2); }
-    50% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.6); }
-    100% { box-shadow: 0 0 15px rgba(0, 212, 255, 0.2); }
-}
+        /* --- ANIMATIONS --- */
+        @keyframes mana-pulse { 0%, 100% { box-shadow: 0 0 15px rgba(0, 212, 255, 0.2); } 50% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.6); } }
+        @keyframes igris-aura { 0% { filter: drop-shadow(0 0 2px #ff0000); } 100% { filter: drop-shadow(0 0 15px #7b0000); } }
+        @keyframes system-appear { 0% { transform: scaleX(0); opacity: 0; } 100% { transform: scaleX(1); opacity: 1; } }
+        @keyframes float-mana { 0% { transform: translateY(0); opacity: 0; } 50% { opacity: 0.5; } 100% { transform: translateY(-100vh); opacity: 0; } }
 
-/* System Glitch Appearance */
-@keyframes system-appear {
-    0% { transform: scaleX(0); opacity: 0; filter: brightness(3); }
-    50% { transform: scaleX(1.1); opacity: 0.8; }
-    100% { transform: scaleX(1); opacity: 1; filter: brightness(1); }
-}
-
-/* Floating Mana Particles */
-@keyframes float-mana {
-    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-    50% { opacity: 0.5; }
-    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
-}
-
-.system-window {
-    animation: system-appear 0.5s ease-out forwards, mana-pulse 3s infinite;
-}
-
-/* Add this to create floating particles in the background */
-.mana-particle {
-    position: absolute;
-    background: var(--system-blue);
-    width: 2px;
-    height: 2px;
-    pointer-events: none;
-    animation: float-mana 5s linear infinite;
-}
-
+        .mana-particle { position: absolute; width: 2px; height: 2px; background: var(--system-blue); pointer-events: none; animation: float-mana 5s linear infinite; }
+        .mana-particle.red { background: var(--igris-red); box-shadow: 0 0 5px var(--igris-red); }
     </style>
 </head>
 <body>
 
-    <div class="stats-bar">
-        <div class="stat-item">STR: <span id="stat-str">0</span></div>
-        <div class="stat-item">AGI: <span id="stat-agi">0</span></div>
-        <div class="stat-item">VIT: <span id="stat-vit">0</span></div>
+<div class="stats-bar" id="top-bar">
+    <div class="stat-item">STR: <span id="stat-str" class="stat-item-val">0</span></div>
+    <div class="stat-item">AGI: <span id="stat-agi" class="stat-item-val">0</span></div>
+    <div class="stat-item">VIT: <span id="stat-vit" class="stat-item-val">0</span></div>
+</div>
+
+<div class="system-window" id="main-window">
+    <div class="header">
+        <h2 id="floor-title" style="color:var(--system-blue); margin:0; font-size: 1rem;">[FLOOR ...]</h2>
+        <span id="completion-pct" style="color:var(--text-gold); font-weight: bold;">0%</span>
     </div>
+    <div id="quest-list"></div>
+</div>
 
-    <div class="system-window">
-        <div class="header">
-            <h2 id="floor-title" style="color:var(--system-blue); margin:0; font-size: 1rem;">[FLOOR ...]</h2>
-            <span id="completion-pct" style="color:var(--text-gold); font-weight: bold;">0%</span>
-        </div>
-        <div id="quest-list"></div>
+<div id="level-modal" class="modal">
+    <div class="modal-content">
+        <h1 style="color:var(--text-gold); letter-spacing: 3px;">LEVEL UP</h1>
+        <p>Your power has reached new heights.</p>
+        <button onclick="finish()" style="background:none; border:1px solid gold; color:gold; padding:10px 25px; cursor:pointer; text-transform:uppercase; margin-top: 15px;">Continue</button>
     </div>
+</div>
 
-    <div id="level-modal" class="modal">
-        <div class="modal-content">
-            <h1 style="color:var(--text-gold);">LEVEL UP</h1>
-            <p>New powers have been granted.</p>
-            <button onclick="finish()" style="background:none; border:1px solid gold; color:gold; padding:10px 20px; cursor:pointer; text-transform:uppercase;">Continue</button>
-        </div>
-    </div>
+<script>
+    let doneCount = 0;
+    const currentUser = localStorage.getItem("soloUser") || "hunter";
+    const currentLevel = parseInt(localStorage.getItem("userLevel_" + currentUser)) || 1;
 
-    <script>
-        let doneCount = 0;
-        let currentUser = localStorage.getItem("soloUser") || "hunter";
-        let currentLevel = parseInt(localStorage.getItem("userLevel_" + currentUser)) || 1;
+    const exercises = [
+        { id: 'p', name: 'Push-ups', goal: 10 + Math.floor(currentLevel / 7) },
+        { id: 'r', name: 'Running (KM)', goal: 5 + Math.floor(currentLevel / 10) },
+        { id: 'sq', name: 'Squats', goal: 10 + Math.floor(currentLevel / 7) },
+        { id: 'si', name: 'Sit-ups', goal: 10 + Math.floor(currentLevel / 7) }
+    ];
 
-        // 1. BASE EXERCISES
-        const exercises = [
-            { id: 'p', name: 'Push-ups', goal: 10 + Math.floor(currentLevel / 7) },
-            { id: 'r', name: 'Running (KM)', goal: 5 + Math.floor(currentLevel / 10) },
-            { id: 'sq', name: 'Squats', goal: 10 + Math.floor(currentLevel / 7) },
-            { id: 'si', name: 'Sit-ups', goal: 10 + Math.floor(currentLevel / 7) }
-        ];
+    const skillPool = [
+        { id: 'pl', name: 'Plank (Sec)', goal: 30 + (currentLevel * 2) },
+        { id: 'lu', name: 'Lunges', goal: 10 + Math.floor(currentLevel / 5) },
+        { id: 'bu', name: 'Burpees', goal: 5 + Math.floor(currentLevel / 10) },
+        { id: 'pull', name: 'Pull-ups', goal: 3 + Math.floor(currentLevel / 12) }
+    ];
 
-        // 2. SKILL POOL (Unlocks every 3 levels)
-        const skillPool = [
-            { id: 'pl', name: 'Plank (Sec)', goal: 30 + (currentLevel * 2) },
-            { id: 'lu', name: 'Lunges', goal: 10 + Math.floor(currentLevel / 5) },
-            { id: 'bu', name: 'Burpees', goal: 5 + Math.floor(currentLevel / 10) },
-            { id: 'pull', name: 'Pull-ups', goal: 3 + Math.floor(currentLevel / 12) },
-            { id: 'dip', name: 'Dips', goal: 8 + Math.floor(currentLevel / 8) },
-            { id: 'jump', name: 'Jumping Jacks', goal: 20 + currentLevel }
-        ];
-
-        function renderQuests() {
-            // Update HUD
-            document.getElementById('stat-str').innerText = 10 + Math.floor(currentLevel / 2);
-            document.getElementById('stat-agi').innerText = 10 + Math.floor(currentLevel / 3);
-            document.getElementById('stat-vit').innerText = 10 + Math.floor(currentLevel / 2);
-            document.getElementById('floor-title').innerText = `[FLOOR ${currentLevel}]`;
-
-            const listContainer = document.getElementById('quest-list');
-            
-            // CALCULATE UNLOCKS: Level 3 = 1 extra, Level 6 = 2 extra, etc.
-            const unlockCount = Math.floor(currentLevel / 3);
-            const activeQuests = [...exercises];
-            
-            for(let i = 0; i < unlockCount && i < skillPool.length; i++) {
-                activeQuests.push(skillPool[i]);
-            }
-
-            window.totalActive = activeQuests.length;
-
-            let html = "";
-            activeQuests.forEach(ex => {
-                html += `
-                    <div class="quest-item" id="row-${ex.id}">
-                        <div style="display:flex; flex-direction:column;">
-                            <span style="font-weight:bold; text-transform:uppercase; font-size:0.8rem;">${ex.name}</span>
-                            <span style="font-size:0.65rem; color:#888;">Goal: ${ex.goal}</span>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <input type="number" class="reps-input" id="in-${ex.id}" placeholder="0">
-                            <input type="checkbox" class="system-checkbox" onclick="validate('${ex.id}', ${ex.goal}, this)">
-                        </div>
-                    </div>
-                `;
-            });
-            listContainer.innerHTML = html;
+    function renderQuests() {
+        const windowEl = document.getElementById('main-window');
+        const barEl = document.getElementById('top-bar');
+        
+        // Igris Transformation Logic
+        if (currentLevel % 3 === 0) {
+            windowEl.classList.add('stage-igris');
+            barEl.classList.add('stage-igris-bar');
         }
 
-        function validate(id, goal, cb) {
-            const inputVal = parseInt(document.getElementById('in-' + id).value) || 0;
-            const row = document.getElementById('row-' + id);
-            
-            if (cb.checked) {
-                if (inputVal >= goal) {
-                    row.classList.add('completed');
-                    doneCount++;
-                } else {
-                    cb.checked = false;
-                    alert(`System: Goal not met. Requirement: ${goal}`);
-                }
-            } else {
-                row.classList.remove('completed');
-                doneCount--;
-            }
+        document.getElementById('stat-str').innerText = 10 + Math.floor(currentLevel / 2);
+        document.getElementById('stat-agi').innerText = 10 + Math.floor(currentLevel / 3);
+        document.getElementById('stat-vit').innerText = 10 + Math.floor(currentLevel / 2);
+        document.getElementById('floor-title').innerText = `[FLOOR ${currentLevel}]`;
 
-            const pct = Math.round((doneCount / window.totalActive) * 100);
-            document.getElementById('completion-pct').innerText = pct + "%";
-            if (pct >= 100) document.getElementById('level-modal').style.display = 'flex';
+        const listContainer = document.getElementById('quest-list');
+        const unlockCount = Math.floor(currentLevel / 3);
+        const activeQuests = [...exercises];    
+        
+        for(let i = 0; i < unlockCount && i < skillPool.length; i++) {
+            activeQuests.push(skillPool[i]);
         }
 
-        function finish() {
-            localStorage.setItem("userLevel_" + currentUser, currentLevel + 1);
-            window.location.href = "levelup.html";
-        }
-
-        renderQuests();
-
-        function createParticles() {
-    for (let i = 0; i < 20; i++) {
-        let particle = document.createElement('div');
-        particle.className = 'mana-particle';
-        particle.style.left = Math.random() * 100 + 'vw';
-        particle.style.top = '100vh';
-        particle.style.animationDelay = Math.random() * 5 + 's';
-        particle.style.opacity = Math.random();
-        document.body.appendChild(particle);
+        window.totalActive = activeQuests.length;
+        listContainer.innerHTML = activeQuests.map(ex => `
+            <div class="quest-item" id="row-${ex.id}">
+                <div style="display:flex; flex-direction:column;">
+                    <span style="font-weight:bold; text-transform:uppercase; font-size:0.8rem;">${ex.name}</span>
+                    <span style="font-size:0.65rem; color:#888;">Goal: ${ex.goal}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="number" class="reps-input" id="in-${ex.id}" placeholder="0">
+                    <input type="checkbox" class="system-checkbox" onclick="validate('${ex.id}', ${ex.goal}, this)">
+                </div>
+            </div>
+        `).join('');
     }
-}
-createParticles();
 
-    </script>
+    function validate(id, goal, cb) {
+        const val = parseInt(document.getElementById('in-' + id).value) || 0;
+        const row = document.getElementById('row-' + id);  
+        
+        if (cb.checked) {
+            if (val >= goal) {
+                row.classList.add('completed');
+                doneCount++;
+            } else {
+                cb.checked = false;
+                alert(`SYSTEM: Goal Not Met. Required: ${goal}`); 
+            }
+        } else {
+            row.classList.remove('completed');
+            doneCount--;
+        }
+        
+        const pct = Math.round((doneCount / window.totalActive) * 100);
+        document.getElementById('completion-pct').innerText = pct + "%";
+        
+        if (pct >= 100) {
+            // Check Daily Limit
+            const today = new Date().toLocaleDateString();
+            if (localStorage.getItem("lastLevelDate_" + currentUser) === today) {
+                alert("LIMIT REACHED: You have already leveled up today.");
+            } else {
+                document.getElementById('level-modal').style.display = 'flex';
+            }
+        }
+    }
+
+    function finish() {
+        localStorage.setItem("userLevel_" + currentUser, currentLevel + 1);
+        localStorage.setItem("lastLevelDate_" + currentUser, new Date().toLocaleDateString());
+        window.location.href = "index.html"; // Returns to Main UI
+    }
+
+    function createParticles() {
+        const isIgris = currentLevel % 3 === 0;
+        for (let i = 0; i < 20; i++) {
+            let p = document.createElement('div');
+            p.className = isIgris ? 'mana-particle red' : 'mana-particle';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.top = '100vh';
+            p.style.animationDelay = Math.random() * 5 + 's';
+            p.style.opacity = Math.random();
+            document.body.appendChild(p);
+        }
+    }
+
+    renderQuests();
+    createParticles();
+</script>
 </body>
 </html>

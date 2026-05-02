@@ -120,6 +120,12 @@
             document.getElementById('portal-overlay').style.display = 'flex';
             setTimeout(() => { window.location.href = "workout.html"; }, 1200);
         }
+
+
+        // Example usage inside your existing level-up logic
+const currentLevel = parseInt(localStorage.getItem("userLevel_" + currentUser));
+updateSystemAnimation(currentLevel);
+
     </script>
 </body>
 </html>
