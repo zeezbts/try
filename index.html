@@ -114,6 +114,13 @@
         <h1 class="lvl-text">LEVEL: <span id="display-level">1</span></h1>
         <h2 id="user-display" style="color: var(--system-blue); margin-bottom: 20px; font-size: 1.1rem;">HUNTER</h2>
         <button onclick="enterGate()">Enter the Gate</button>
+
+
+        <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+    <button onclick="exportSave()" style="font-size: 0.7rem; padding: 10px;">Export Save</button>
+    <button onclick="importSave()" style="font-size: 0.7rem; padding: 10px;">Import Save</button>
+</div>
+
     </div>
 
     <div id="gate-overlay">
@@ -175,6 +182,40 @@
         function logout() { 
             if(confirm("Disconnect?")) { localStorage.removeItem("soloUser"); location.reload(); } 
         }
+
+
+
+        function exportSave() {
+    const name = localStorage.getItem("soloUser");
+    const lvl = localStorage.getItem("userLevel_" + name);
+    const pass = localStorage.getItem("userPass_" + name);
+    
+    // Create a simple coded string: Name|Level|Password
+    const saveString = btoa(`${name}|${lvl}|${pass}`); 
+    prompt("COPY THIS SAVE CODE TO YOUR OTHER PHONE:", saveString);
+}
+
+function importSave() {
+    const code = prompt("PASTE YOUR SAVE CODE HERE:");
+    if (!code) return;
+
+    try {
+        const decoded = atob(code).split('|'); // Decode the string
+        const name = decoded[0];
+        const lvl = decoded[1];
+        const pass = decoded[2];
+
+        localStorage.setItem("soloUser", name);
+        localStorage.setItem("userLevel_" + name, lvl);
+        localStorage.setItem("userPass_" + name, pass);
+        
+        alert("SYNC COMPLETE: System Restarting...");
+        location.reload();
+    } catch(e) {
+        alert("ERROR: Invalid Save Code.");
+    }
+}
+
     </script>
 </body>
 </html>
