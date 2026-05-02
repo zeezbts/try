@@ -1,212 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
     <meta charset="UTF-8">
-    <title>Evolution - Solo Leveling</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Arise - Solo Leveling</title>
     <style>
+        :root { --system-blue: #00d4ff; --text-gold: #ffd700; --bg-dark: #0a0a0b; --monarch-purple: #a020f0; }
+        
+        body { 
+            background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; 
+            display: flex; justify-content: center; align-items: center; 
+            height: 100vh; margin: 0; overflow: hidden;
+            position: fixed; width: 100%;
+        }
 
+        /* --- BACKGROUND IMAGE --- */
+        .bg-image {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), 
+                              url('https://pinimg.com');
+            background-size: cover; background-position: center;
+            z-index: -2;
+            transform: translate3d(0, 0, 0);
+            animation: manaSurge 6s infinite alternate ease-in-out;
+        }
 
+        @keyframes manaSurge {
+            0% { filter: brightness(0.6) saturate(1); }
+            100% { filter: brightness(1) saturate(1.4); }
+        }
 
-/* THE SHADOW SOLDIER */
-.shadow-monarch {
-    position: fixed;
-    bottom: -10%; /* Starts slightly off-screen */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 500px;
-    height: auto;
-    z-index: -1; /* Behind the text */
-    opacity: 0.6;
-    filter: drop-shadow(0 0 20px #8a2be2); /* Purple Mana Glow */
-    animation: shadowRise 4s ease-out forwards, flicker 2s infinite alternate;
-}
+        /* --- ARISE INTRO SEQUENCE --- */
+        #arise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 10000;
+            display: flex; justify-content: center; align-items: center;
+            animation: fadeOutOverlay 0.5s ease-in 2.5s forwards;
+        }
 
-@keyframes shadowRise {
-    from { bottom: -20%; opacity: 0; }
-    to { bottom: 0%; opacity: 0.6; }
-}
+        .arise-text {
+            font-size: clamp(3.5rem, 15vw, 8rem);
+            color: var(--monarch-purple);
+            text-shadow: 0 0 20px var(--monarch-purple), 0 0 50px #4b0082;
+            letter-spacing: 15px; font-weight: 900;
+            animation: ariseEffect 2.5s ease-out forwards;
+        }
 
-@keyframes flicker {
-    0% { filter: drop-shadow(0 0 10px #8a2be2) brightness(1); }
-    100% { filter: drop-shadow(0 0 30px #4b0082) brightness(1.2); }
-}
+        @keyframes ariseEffect {
+            0% { transform: scale(0.5); opacity: 0; letter-spacing: 40px; filter: blur(10px); }
+            20% { opacity: 1; filter: blur(0px); }
+            80% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
 
-/* Background Mana Swirl */
-body::before {
-    content: "";
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle at center, transparent 30%, rgba(138, 43, 226, 0.1) 100%);
-    z-index: -2;
-}
+        @keyframes fadeOutOverlay { to { visibility: hidden; opacity: 0; } }
 
+        /* --- MAIN UI CONTAINER --- */
+        .rank-up-container { 
+            text-align: center; z-index: 5;
+            background: rgba(10, 10, 15, 0.7); backdrop-filter: blur(10px);
+            padding: 40px 20px; border: 1px solid var(--system-blue);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            width: 85%; max-width: 420px;
+            clip-path: polygon(0 15px, 15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+            opacity: 0; /* Hidden until Arise finishes */
+            animation: revealUI 1s ease-out 2.8s forwards;
+        }
 
+        @keyframes revealUI { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+        .level-number { font-size: 7rem; color: var(--text-gold); text-shadow: 0 0 40px var(--text-gold); margin: 5px 0; font-weight: 900; }
+        
+        button { 
+            background: rgba(0, 212, 255, 0.1); border: 1px solid var(--system-blue); 
+            color: var(--system-blue); padding: 18px; cursor: pointer; 
+            text-transform: uppercase; margin-top: 20px; font-weight: bold;
+            letter-spacing: 2px; transition: 0.3s; width: 100%;
+        }
+        button:hover { background: var(--system-blue); color: black; box-shadow: 0 0 20px var(--system-blue); }
 
-
-
-     /* Responsive Container */
-.rank-up-container {
-    width: 90%;
-    max-width: 600px;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-/* Level Number Scaling */
-.level-number {
-    font-size: clamp(5rem, 25vw, 10rem); /* Scales between 5rem and 10rem based on screen width */
-    margin: 5px 0;
-    line-height: 1;
-}
-
-/* Glitch Title Scaling */
-.glitch-text {
-    font-size: clamp(1.8rem, 8vw, 3.5rem);
-    letter-spacing: 2px;
-}
-
-/* Mobile Button Optimization */
-button {
-    width: 100%;
-    max-width: 300px;
-    padding: 20px; /* Larger tap area for thumbs */
-    font-size: 1rem;
-    box-sizing: border-box;
-}
-
-/* Extra tweak for very small height phones (landscape) */
-@media (max-height: 500px) {
-    .level-number { font-size: 4rem; }
-    .glitch-text { font-size: 1.5rem; }
-}
-
-
-
-
-
-        :root { --system-blue: #00d4ff; --text-gold: #ffd700; --bg-dark: #0a0a0b; }
-        body { background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; background-image: radial-gradient(circle, #1a1a2e 0%, #0a0a0b 100%); }
-        .rank-up-container { text-align: center; animation: zoomIn 0.8s ease-out; }
-        .glitch-text { font-size: 3rem; color: var(--system-blue); text-shadow: 0 0 20px var(--system-blue); letter-spacing: 5px; }
-        .level-number { font-size: 8rem; color: var(--text-gold); text-shadow: 0 0 50px var(--text-gold); margin: 10px 0; }
-        #portal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; display: none; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
-        .portal-spin { width: 70px; height: 70px; border: 4px solid var(--system-blue); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        #portal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; display: none; z-index: 10001; flex-direction: column; justify-content: center; align-items: center; }
+        .portal-spin { width: 50px; height: 50px; border: 3px solid var(--system-blue); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        button { background: transparent; border: 1px solid var(--system-blue); color: var(--system-blue); padding: 15px 40px; cursor: pointer; text-transform: uppercase; margin-top: 40px; transition: 0.3s; }
-        button:hover { background: var(--system-blue); color: black; }
-
-
-
-        #arise-sequence {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: black;
-    z-index: 10000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    animation: fadeOut 0.5s ease-in 2.5s forwards; /* Disappears after 2.5s */
-}
-
-.arise-text {
-    font-size: clamp(3rem, 15vw, 8rem);
-    color: #a020f0; /* Monarch Purple */
-    text-shadow: 0 0 20px #a020f0, 0 0 40px #4b0082;
-    letter-spacing: 20px;
-    font-weight: 900;
-    animation: ariseGlitch 0.2s infinite alternate, ariseZoom 2.5s ease-out;
-}
-
-.mana-flare {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    box-shadow: inset 0 0 100px #a020f0;
-    opacity: 0;
-    animation: flarePulse 2.5s ease-out;
-}
-
-/* Animations */
-@keyframes ariseGlitch {
-    0% { transform: translate(2px, -2px); text-shadow: 2px 0 red; }
-    100% { transform: translate(-2px, 2px); text-shadow: -2px 0 blue; }
-}
-
-@keyframes ariseZoom {
-    0% { transform: scale(0.5); opacity: 0; letter-spacing: 50px; }
-    30% { opacity: 1; }
-    100% { transform: scale(1.2); letter-spacing: 10px; }
-}
-
-@keyframes flarePulse {
-    0% { opacity: 1; }
-    100% { opacity: 0; }
-}
-
-@keyframes fadeOut {
-    to { opacity: 0; visibility: hidden; }
-}
-
     </style>
 </head>
 <body>
-<!-- Shadow Soldier Silhouette -->
-<img src="https://ibb.co" class="shadow-monarch" alt="Shadow Soldier">
-<div id="arise-sequence">
-    <h1 class="arise-text">ARISE</h1>
-    <div class="mana-flare"></div>
-</div>
+    <!-- 1. Background -->
+    <div class="bg-image"></div>
 
-
-
-    <div class="rank-up-container">
-        <h1 class="glitch-text">LEVEL INCREASED</h1>
-        <div class="level-number" id="display-new-level">1</div>
-        <button onclick="next()">Return to Main UI</button>
+    <!-- 2. Arise Intro -->
+    <div id="arise-overlay">
+        <h1 class="arise-text">ARISE</h1>
     </div>
 
+    <!-- 3. Level Up Content -->
+    <div class="rank-up-container">
+        <p style="color: var(--system-blue); letter-spacing: 3px; margin: 0; font-size: 0.8rem;">EVOLUTION COMPLETE</p>
+        <div class="level-number" id="display-new-level">1</div>
+        <h2 style="color: white; letter-spacing: 2px; font-size: 1rem; margin-bottom: 20px;">RANK INCREASED</h2>
+        <button onclick="next()">GO TO NEXY DONGEN</button>
+    </div>
+
+    <!-- 4. Loading Overlay -->
     <div id="portal-overlay">
         <div class="portal-spin"></div>
-        <p style="color: var(--system-blue); margin-top: 20px;">SYNCING SYSTEM DATA...</p>
+        <p style="color: var(--system-blue); margin-top: 20px; letter-spacing: 2px;">RE-SYNCING...</p>
     </div>
 
     <script>
-
-
-// Add this to your existing window.onload or script in levelup.html
-document.addEventListener("DOMContentLoaded", () => {
-    const mainUI = document.querySelector('.rank-up-container');
-    mainUI.style.opacity = "0"; // Hide initially
-    
-    setTimeout(() => {
-        mainUI.style.transition = "opacity 1s ease";
-        mainUI.style.opacity = "1"; // Fade in Level Up text after "Arise"
-    }, 2500);
-});
-
-
-
-
-        // Get user and level
-        const name = localStorage.getItem("soloUser");
-        if (name) {
-            const level = localStorage.getItem("userLevel_" + name.toLowerCase()) || 1;
+        const hunter = localStorage.getItem("soloUser");
+        
+        window.onload = function() {
+            if (!hunter) { window.location.href = "index.html"; return; }
+            const level = localStorage.getItem("userLevel_" + hunter.toLowerCase()) || 1;
             document.getElementById('display-new-level').innerText = level;
-        } else {
-            window.location.href = "index.html";
-        }
+        };
 
         function next() {
             document.getElementById('portal-overlay').style.display = 'flex';
-            setTimeout(() => { 
-                // Return to index.html so the user can see their updated status
-                window.location.href = "index.html"; 
-            }, 1500);
+            setTimeout(() => { window.location.href = "workout.html"; }, 1200);
         }
     </script>
 </body>

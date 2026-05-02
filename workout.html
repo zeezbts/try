@@ -7,6 +7,26 @@
     <title>Solo Leveling - Floor Tracker</title>
     <style>
     
+@keyframes breathe {
+    0% { 
+        transform: scale(1); 
+    }
+    100% { 
+        /* Adding translate3d(0,0,0) forces the browser to use the 
+           GPU (Hardware Acceleration), which stops the shaking. */
+        transform: scale(1.05) translate3d(0, 0, 0); 
+    }
+}
+
+/* Also add this to your .bg-layer or body::before */
+.bg-layer {
+    /* ... your other styles ... */
+    backface-visibility: hidden;
+    -webkit-font-smoothing: subpixel-antialiased;
+    will-change: transform; /* Tells the browser to prepare for animation */
+}
+
+
 
 
 

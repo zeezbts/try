@@ -3,339 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solo Leveling - The System</title>
     <style>
+        :root { 
+            --system-blue: #00d4ff; 
+            --bg-dark: #0a0a0b; 
+            --text-gold: #ffd700;
+            --glow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
 
-/* Update the window to use percentage width */
-.system-window {
-    width: 85%;            /* Takes up 85% of screen on mobile */
-    max-width: 400px;      /* Stops it from getting too wide on PC */
-    padding: 30px 15px;    /* Reduced padding for small screens */
-    box-sizing: border-box; /* Ensures padding doesn't push width over 100% */
-    
-    /* Responsive clip-path that works on any size */
-    clip-path: polygon(0 15px, 15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
-}
+        body { 
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
+            display: flex; justify-content: center; align-items: center; 
+            font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark);
+            overflow: hidden; color: white;
+            /* Prevents layout shift */
+            position: fixed;
+        }
 
-/* Update inputs and buttons to fill their container */
-input, button {
-    width: 90%;            /* Makes them fit inside the window */
-    max-width: 300px;
-    box-sizing: border-box;
-    font-size: 16px;       /* Prevents iOS from auto-zooming on focus */
-}
+        /* --- STABLE BACKGROUND (NO SHAKE) --- */
+        .bg-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(10, 20, 40, 0.6)), 
+                              url('https://wallpapercave.com');
+            background-size: cover; background-position: center;
+            z-index: -2;
+            /* Using hardware acceleration to lock position */
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            animation: manaPulse 8s infinite alternate ease-in-out;
+        }
 
+        @keyframes manaPulse {
+            0% { filter: brightness(0.8) contrast(1); opacity: 0.8; }
+            100% { filter: brightness(1.2) contrast(1.1); opacity: 1; }
+        }
 
+        .particles {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://transparenttextures.com');
+            opacity: 0.2; z-index: -1; animation: drift 60s linear infinite;
+            pointer-events: none;
+        }
 
+        /* --- LOCKED UI WINDOW --- */
+        .system-window, #login-screen { 
+            position: relative; width: 85%; max-width: 420px; 
+            border: 2px solid var(--system-blue); padding: 40px 20px; 
+            background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(12px);
+            clip-path: polygon(0 15px, 15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+            text-align: center; box-shadow: var(--glow);
+            /* Prevents sub-pixel jitter */
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+        }
 
+        #login-screen { display: flex; flex-direction: column; align-items: center; }
+        #main-ui { display: none; }
 
+        /* --- UI ELEMENTS --- */
+        h1 { font-size: 1.6rem; letter-spacing: 3px; margin-bottom: 20px; color: var(--system-blue); }
+        .lvl-text { font-size: 3rem; color: var(--text-gold); margin: 5px 0; text-shadow: 0 0 15px var(--text-gold); }
+        
+        #display-rank { 
+            font-weight: 900; font-size: 3.5rem; 
+            display: block; margin: 10px 0;
+            line-height: 1; transition: 0.5s ease;
+        }
 
-@media (max-width: 400px) {
-    h1 { font-size: 1.5rem; }
-    #display-level { font-size: 2.5rem; }
-    .system-window { padding: 20px 10px; }
-}
+        input { 
+            background: rgba(0, 212, 255, 0.1); border: 1px solid var(--system-blue); 
+            color: white; padding: 15px; margin: 10px 0; width: 90%; max-width: 300px;
+            text-align: center; outline: none; font-size: 16px; 
+        }
 
-        :root { --system-blue: #00d4ff; --bg-dark: #0a0a0b; --text-gold: #ffd700; }
-        body { background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-image: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0b 100%); overflow: hidden; }
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .system-window { position: relative; border: 2px solid var(--system-blue); padding: 50px; background: rgba(20, 20, 25, 0.95); clip-path: polygon(0 0, 95% 0, 100% 5%, 100% 100%, 5% 100%, 0 95%); text-align: center; box-shadow: 0 0 30px rgba(0, 212, 255, 0.3); display: none; }
-        input { background: rgba(0, 212, 255, 0.1); border: 1px solid var(--system-blue); color: white; padding: 12px; margin: 10px; width: 250px; text-align: center; outline: none; }
-        button { background: transparent; border: 1px solid var(--system-blue); color: var(--system-blue); padding: 15px 40px; cursor: pointer; text-transform: uppercase; font-weight: bold; letter-spacing: 2px; transition: 0.3s; }
-        button:hover { background: var(--system-blue); color: black; box-shadow: 0 0 20px var(--system-blue); }
-        .logout-link { position: absolute; top: 15px; right: 20px; color: #ff4d4d; cursor: pointer; font-size: 0.7rem; background: none; border: none; text-decoration: underline; }
-        #gate-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; display: none; z-index: 10000; flex-direction: column; justify-content: center; align-items: center; }
-        .portal { width: 60px; height: 60px; border: 4px solid var(--system-blue); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        button { 
+            background: rgba(0, 212, 255, 0.05); border: 1px solid var(--system-blue); 
+            color: var(--system-blue); padding: 15px 30px; width: 90%; max-width: 300px;
+            cursor: pointer; text-transform: uppercase; font-weight: bold; 
+            letter-spacing: 2px; transition: 0.4s; margin-top: 10px;
+        }
+
+        button:hover { background: var(--system-blue); color: black; box-shadow: 0 0 30px var(--system-blue); }
+
+        .logout-link { position: absolute; top: 12px; right: 15px; color: #ff4d4d; font-size: 0.7rem; background: none; border: none; text-decoration: underline; cursor: pointer; }
+
+        @keyframes drift { from { background-position: 0 0; } to { background-position: 500px 1000px; } }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-
-
-
-
-
-
-
-
-    :root { 
-        --system-blue: #00d4ff; 
-        --bg-dark: #0a0a0b; 
-        --text-gold: #ffd700;
-        --glow: 0 0 15px rgba(0, 212, 255, 0.7);
-    }
-
-    body { 
-        background-color: var(--bg-dark); 
-        color: white; 
-        font-family: 'Segoe UI', sans-serif; 
-        margin: 0; 
-        display: flex; 
-        justify-content: center; 
-        align-items: center; 
-        min-height: 100vh; 
-        background-image: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0b 100%);
-        overflow: hidden; 
-    }
-
-    /* Scanline effect like a CRT monitor */
-    body::before {
-        content: " ";
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                    linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-        background-size: 100% 4px, 3px 100%;
-        pointer-events: none;
-        z-index: 10;
-    }
-
-    /* Glitch Animation */
-    @keyframes glitch {
-        0% { text-shadow: 2px 0 0 red, -2px 0 0 blue; }
-        25% { text-shadow: -2px 0 0 red, 2px 0 0 blue; }
-        50% { text-shadow: 2px 2px 0 red, -2px -2px 0 blue; }
-        100% { text-shadow: 0 0 0 red, 0 0 0 blue; }
-    }
-
-    .system-window { 
-        position: relative; 
-        border: 2px solid var(--system-blue); 
-        padding: 50px; 
-        background: rgba(10, 10, 15, 0.9); 
-        clip-path: polygon(0 15px, 15px 0, 95% 0, 100% 15px, 100% 95%, 95% 100%, 15% 100%, 0 85%);
-        text-align: center; 
-        box-shadow: var(--glow);
-        animation: fadeIn 0.5s ease-out;
-    }
-
-    h1 { 
-        animation: glitch 1s infinite alternate-reverse; 
-        letter-spacing: 4px;
-        text-transform: uppercase;
-    }
-
-    input { 
-        background: rgba(0, 212, 255, 0.05); 
-        border: 1px solid var(--system-blue); 
-        color: white; 
-        padding: 12px; 
-        margin: 10px; 
-        width: 250px; 
-        text-align: center; 
-        outline: none;
-        transition: 0.3s;
-    }
-
-    input:focus { background: rgba(0, 212, 255, 0.2); box-shadow: var(--glow); }
-
-    button { 
-        background: rgba(0, 212, 255, 0.1); 
-        border: 1px solid var(--system-blue); 
-        color: var(--system-blue); 
-        padding: 15px 40px; 
-        cursor: pointer; 
-        text-transform: uppercase; 
-        font-weight: bold; 
-        letter-spacing: 2px; 
-        transition: 0.3s;
-        position: relative;
-        overflow: hidden;
-    }
-
-    button:hover { 
-        background: var(--system-blue); 
-        color: black; 
-        box-shadow: 0 0 30px var(--system-blue); 
-    }
-
-    /* Floating "Syncing" Animation for the Portal */
-    .portal { 
-        width: 100px; height: 100px; 
-        border: 4px solid var(--system-blue); 
-        border-top-color: transparent; 
-        border-radius: 50%; 
-        animation: spin 0.8s linear infinite, portalPulse 1.5s infinite alternate; 
-        box-shadow: 0 0 50px var(--system-blue);
-    }
-
-    @keyframes portalPulse {
-        from { transform: scale(1); opacity: 0.8; }
-        to { transform: scale(1.2); opacity: 1; }
-    }
-
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-
-
-
-
-    :root { 
-    --system-blue: #00d4ff; 
-    --bg-dark: #0a0a0b; 
-}
-
-body { 
-    margin: 0; 
-    padding: 0;
-    min-height: 100vh; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    font-family: 'Segoe UI', sans-serif; 
-    background-color: var(--bg-dark);
-    overflow: hidden; 
-}
-
-/* THE ANIMATED BACKGROUND */
-body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    /* Replace with your preferred image URL */
-    background-image: linear-gradient(rgba(10, 10, 15, 0.7), rgba(10, 10, 15, 0.7)), 
-                      url('https://alphacoders.com');
-    background-size: cover;
-    background-position: center;
-    z-index: -1;
-    /* This creates the "breathing" effect */
-    animation: bgPulse 20s infinite alternate ease-in-out;
-}
-
-/* THE SCANLINE OVERLAY (For the digital monitor look) */
-body::after {
-    content: "";
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: repeating-linear-gradient(
-        0deg,
-        rgba(0, 0, 0, 0.1),
-        rgba(0, 0, 0, 0.1) 1px,
-        transparent 1px,
-        transparent 2px
-    );
-    pointer-events: none;
-    z-index: 1;
-}
-
-/* Keyframes for the background zoom animation */
-@keyframes bgPulse {
-    0% { transform: scale(1.0); }
-    100% { transform: scale(1.1); }
-}
-
-.system-window {
-    z-index: 5; /* Ensures the UI stays above the background */
-    background: rgba(10, 10, 15, 0.85); /* Semi-transparent to see the image */
-    backdrop-filter: blur(5px); /* Blurs the background behind the window */
-    border: 2px solid var(--system-blue);
-    /* ... existing window styles ... */
-}
-
-
-
-
-
-    :root { 
-        --system-blue: #00d4ff; 
-        --bg-dark: #0a0a0b; 
-        --text-gold: #ffd700;
-    }
-
-    body { 
-        margin: 0; 
-        padding: 0;
-        height: 100vh; 
-        display: flex; 
-        justify-content: center; 
-        align-items: center; 
-        font-family: 'Segoe UI', sans-serif; 
-        background-color: var(--bg-dark);
-        overflow: hidden; 
-    }
-
-    /* ANIMATED BACKGROUND IMAGE */
-    .bg-animation {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        /* Dark blue/black dungeon aesthetic */
-        background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(10, 20, 40, 0.6)), 
-                          url('https://alphacoders.com');
-        background-size: cover;
-        background-position: center;
-        z-index: -2;
-        animation: subtleZoom 20s infinite alternate ease-in-out;
-    }
-
-    /* MANA PARTICLES (FLOATING DUST) */
-    .particles {
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: url('https://transparenttextures.com');
-        opacity: 0.3;
-        z-index: -1;
-        animation: floatParticles 60s linear infinite;
-    }
-
-    /* THE ANIMATIONS */
-    @keyframes subtleZoom {
-        0% { transform: scale(1); }
-        100% { transform: scale(1.15); }
-    }
-
-    @keyframes floatParticles {
-        from { background-position: 0 0; }
-        to { background-position: 500px 1000px; }
-    }
-
-    /* SYSTEM WINDOW STYLING */
-    .system-window { 
-        position: relative; 
-        border: 2px solid var(--system-blue); 
-        padding: 40px; 
-        background: rgba(10, 10, 15, 0.85); /* See-through tech look */
-        backdrop-filter: blur(8px); /* Frosted glass effect */
-        clip-path: polygon(0 20px, 20px 0, 95% 0, 100% 20px, 100% 95%, 95% 100%, 20% 100%, 0 80%);
-        text-align: center; 
-        box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
-        z-index: 10;
-        animation: windowSlideIn 0.8s ease-out;
-    }
-
-    @keyframes windowSlideIn {
-        from { opacity: 0; transform: translateY(30px) scale(0.9); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    
+        /* --- GATE OVERLAY --- */
+        #gate-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; display: none; z-index: 10000; flex-direction: column; justify-content: center; align-items: center; }
+        .portal { width: 60px; height: 60px; border: 4px solid var(--system-blue); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
     </style>
 </head>
 <body>
-    <div class="bg-animation"></div>
-<div class="particles"></div>
+    <div class="bg-layer"></div>
+    <div class="particles"></div>
 
     <div id="login-screen">
-        <h1 style="color: var(--system-blue); letter-spacing: 5px; margin-bottom: 20px;">SYSTEM ACCESS</h1>
+        <h1>SYSTEM ACCESS</h1>
         <input type="text" id="u-name" placeholder="HUNTER NAME">
-        <input type="password" id="u-pass" placeholder="PASSWORD">
+        <input type="password" id="u-pass" placeholder="SECRET KEY">
         <button onclick="verifyUser()">Verify Identity</button>
     </div>
 
     <div id="main-ui" class="system-window">
         <button class="logout-link" onclick="logout()">[ Log Out ]</button>
-        <p style="color: #888; font-size: 0.8rem; margin: 0;">CURRENT STATUS</p>
-        <h1 style="color: var(--text-gold); margin: 10px 0; font-size: 3rem;">LEVEL: <span id="display-level">1</span></h1>
-        <h2 id="user-display" style="color: var(--system-blue); margin-bottom: 30px;">HUNTER</h2>
+        <p style="color: #888; font-size: 0.8rem; margin: 0; letter-spacing: 2px;">RANK</p>
+        <span id="display-rank">E</span>
+        <h1 class="lvl-text">LEVEL: <span id="display-level">1</span></h1>
+        <h2 id="user-display" style="color: var(--system-blue); margin-bottom: 20px; font-size: 1.1rem;">HUNTER</h2>
         <button onclick="enterGate()">Enter the Gate</button>
     </div>
 
-    <div id="gate-overlay"><div class="portal"></div><p style="color: var(--system-blue); margin-top: 20px;">SYNCING...</p></div>
+    <div id="gate-overlay">
+        <div class="portal"></div>
+        <p style="color: var(--system-blue); margin-top: 20px; letter-spacing: 2px;">SYNCING GATE DATA...</p>
+    </div>
 
     <script>
         window.onload = function() {
@@ -346,55 +130,50 @@ body::after {
         function verifyUser() {
             const name = document.getElementById('u-name').value.trim().toLowerCase();
             const pass = document.getElementById('u-pass').value.trim();
-            if (name !== "" && pass !== "") {
+            if (name && pass) {
                 const passKey = "userPass_" + name;
-                const levelKey = "userLevel_" + name;
-
                 const storedPass = localStorage.getItem(passKey);
                 if (storedPass === null) {
                     localStorage.setItem(passKey, pass);
-                    localStorage.setItem(levelKey, 1);
+                    localStorage.setItem("userLevel_" + name, 1);
                     localStorage.setItem("soloUser", name);
                     showMainUI(name);
                 } else if (storedPass === pass) {
                     localStorage.setItem("soloUser", name);
                     showMainUI(name);
-                } else {
-                    alert("ACCESS DENIED: Incorrect Secret Key.");
-                }
-            } else { alert("Credentials required."); }
+                } else { alert("ACCESS DENIED: Wrong Key."); }
+            }
         }
 
         function showMainUI(name) {
             const levelKey = "userLevel_" + name.toLowerCase();
-            const currentLevel = localStorage.getItem(levelKey) || 1;
+            const currentLevel = parseInt(localStorage.getItem(levelKey)) || 1;
+
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('main-ui').style.display = 'block';
             document.getElementById('user-display').innerText = name.toUpperCase();
             document.getElementById('display-level').innerText = currentLevel;
+
+            let rank = "E"; let color = "#9e9e9e";
+            if (currentLevel >= 80) { rank = "S"; color = "#ffd700"; }
+            else if (currentLevel >= 60) { rank = "A"; color = "#ff4500"; }
+            else if (currentLevel >= 40) { rank = "B"; color = "#a020f0"; }
+            else if (currentLevel >= 20) { rank = "C"; color = "#00d4ff"; }
+            else if (currentLevel >= 10) { rank = "D"; color = "#32cd32"; }
+
+            const rankEl = document.getElementById('display-rank');
+            rankEl.innerText = rank;
+            rankEl.style.color = color;
+            rankEl.style.textShadow = `0 0 25px ${color}`;
         }
 
-        /* --- Inside index.html --- */
-
-function enterGate() {
-    const name = localStorage.getItem("soloUser");
-    if (!name) { alert("Session expired."); location.reload(); return; }
-
-    document.getElementById('gate-overlay').style.display = 'flex';
-    
-    setTimeout(() => {
-        // CHANGE THIS PART:
-        // Instead of checking for level2.html, send everyone to workout.html
-        window.location.href = "workout.html"; 
-    }, 2000);
-}
-
+        function enterGate() {
+            document.getElementById('gate-overlay').style.display = 'flex';
+            setTimeout(() => { window.location.href = "workout.html"; }, 1500);
+        }
 
         function logout() { 
-            if(confirm("Are you sure you want to exit the System?")) { 
-                localStorage.removeItem("soloUser"); 
-                location.reload(); 
-            } 
+            if(confirm("Disconnect?")) { localStorage.removeItem("soloUser"); location.reload(); } 
         }
     </script>
 </body>
